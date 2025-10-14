@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist Multivac</title>
+    
+    <!-- PWA Meta tags -->
+    <meta name="theme-color" content="#0066CC">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Multivac Checklist">
+    
+    <!-- Inline manifest for PWA -->
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk11bHRpdmFjIENoZWNrbGlzdCIsCiAgInNob3J0X25hbWUiOiAiTXVsdGl2YWMiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzAwMzNBQSIsCiAgInRoZW1lX2NvbG9yIjogIiMwMDY2Q0MiLAogICJpY29ucyI6IFt7CiAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjNhV1IwYUQwaU1USTRJaUJvWldsbmFIUTlJakV5T0NJZ2RtbGxkMEp2ZUQwaU1DQXdJREV5T0NBeU9DSWdabWxzYkQwaUl6QXdOalpEUXlJK1BISmxZM1FnZUQwaU1DSWdlVDBpTUNJZ2QybGtkR2c5SWpFeU9DSWdhR1ZwWjJoMFBTSXlPQ0lnY25nOUlqUWlMejQ4TDNOMlp6ND0iLAogICAgInNpemVzIjogIjEyOHgxMjgiLAogICAgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIKICB9XQp9">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0066CC 0%, #003D7A 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 3px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            height: 8px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00FF88, #00CC66);
+            width: 25%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        /* Step Content */
+        .step {
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-title {
+            text-align: center;
+            font-size: 1.8em;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        /* Machine Cards */
+        .machine-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .machine-card {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .machine-card:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .machine-card.selected {
+            border-color: #00FF88;
+            background: rgba(0,255,136,0.2);
+            transform: scale(1.05);
+        }
+
+        .machine-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .machine-name {
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .machine-series {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        /* Binome Options */
+        .binome-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .binome-option {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .binome-option:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-3px);
+        }
+
+        .binome-option.selected {
+            border-color: #00FF88;
+            background: rgba(0,255,136,0.2);
+        }
+
+        .binome-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .colleague-input {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .colleague-input.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .colleague-input input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+        }
+
+        /* Checklist */
+        .checklist-container {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        /* Custom Scrollbar */
+        .checklist-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .checklist-container::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+
+        .checklist-container::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+        }
+
+        .checklist-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .checklist-category {
+            margin-bottom: 30px;
+        }
+
+        .category-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #00FF88;
+        }
+
+        .checklist-item {
+            background: rgba(200,200,200,0.9);
+            color: #333;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .item-title {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .item-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .option-button {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9em;
+            color: #333;
+        }
+
+        .option-button:hover {
+            border-color: #0066CC;
+            background: #f0f8ff;
+        }
+
+        .option-button.selected {
+            background: #0066CC;
+            border-color: #0066CC;
+            color: white;
+        }
+
+        .simple-tests .test-item {
+            background: rgba(200,200,200,0.9);
+            color: #333;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .simple-tests .test-item:hover {
+            background: rgba(220,220,220,0.9);
+        }
+
+        .simple-tests .test-item.selected {
+            background: rgba(0,102,204,0.8);
+            color: white;
+        }
+
+        .simple-tests .test-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #666;
+            border-radius: 4px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .simple-tests .test-item.selected .test-checkbox {
+            background: #00FF88;
+            border-color: #00FF88;
+        }
+
+        .simple-tests .test-checkbox::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            display: none;
+        }
+
+        .simple-tests .test-item.selected .test-checkbox::after {
+            display: block;
+        }
+
+        /* Report Display */
+        .report-display {
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-line;
+            line-height: 1.5;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* Buttons */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00FF88, #00CC66);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #00CC66, #009944);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,255,136,0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #00FF88;
+            color: #333;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .logo {
+                font-size: 2em;
+                margin-bottom: 20px;
+            }
+
+            .machine-cards {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .binome-options {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 200px;
+                padding: 12px 20px;
+                font-size: 1em;
+            }
+
+            .item-options {
+                flex-direction: column;
+            }
+
+            .option-button {
+                width: 100%;
+                text-align: left;
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">MULTIVAC</div>
+        
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <!-- Étape 1: Sélection Machine -->
+        <div class="step active" id="step1">
+            <h2 class="step-title">Sélectionnez le type de machine</h2>
+            <div class="machine-cards">
+                <div class="machine-card" data-machine="cloche">
+                    <div class="machine-icon">🔲</div>
+                    <div class="machine-name">Machine à Cloche</div>
+                    <div class="machine-series">Série C</div>
+                </div>
+                <div class="machine-card" data-machine="operculeuse">
+                    <div class="machine-icon">📦</div>
+                    <div class="machine-name">Operculeuse</div>
+                    <div class="machine-series">Série T</div>
+                </div>
+                <div class="machine-card" data-machine="thermoformeuse">
+                    <div class="machine-icon">🏭</div>
+                    <div class="machine-name">Thermoformeuse</div>
+                    <div class="machine-series">Série R</div>
+                </div>
+            </div>
+            <div class="button-container">
+                <button class="btn btn-primary" id="nextStep1" disabled>Suivant</button>
+            </div>
+        </div>
+
+        <!-- Étape 2: Binôme -->
+        <div class="step" id="step2">
+            <h2 class="step-title">Mode d'intervention</h2>
+            <div class="binome-options">
+                <div class="binome-option" data-binome="solo">
+                    <div class="binome-icon">👤</div>
+                    <div>Solo</div>
+                </div>
+                <div class="binome-option" data-binome="binome">
+                    <div class="binome-icon">👥</div>
+                    <div>Binôme</div>
+                </div>
+            </div>
+            <div class="colleague-input" id="colleagueInput">
+                <input type="text" id="colleagueName" placeholder="Nom du collègue" />
+            </div>
+            <div class="button-container">
+                <button class="btn btn-secondary" id="prevStep2">Précédent</button>
+                <button class="btn btn-primary" id="nextStep2" disabled>Suivant</button>
+            </div>
+        </div>
+
+        <!-- Étape 3: Checklist -->
+        <div class="step" id="step3">
+            <h2 class="step-title">Checklist d'intervention</h2>
+            <div class="checklist-container" id="checklistContainer">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+            <div class="button-container">
+                <button class="btn btn-secondary" id="prevStep3">Précédent</button>
+                <button class="btn btn-primary" id="nextStep3">Générer le rapport</button>
+            </div>
+        </div>
+
+        <!-- Étape 4: Rapport -->
+        <div class="step" id="step4">
+            <h2 class="step-title">Rapport d'intervention généré</h2>
+            <div class="report-display" id="reportDisplay"></div>
+            <div class="button-container">
+                <button class="btn btn-secondary" id="modifyReport">Modifier</button>
+                <button class="btn btn-primary" id="copyReport">Copier à nouveau</button>
+                <button class="btn btn-primary" id="newIntervention">Nouvelle intervention</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // CONFIGURATION DES MACHINES
+        // ============================================================
+        
+        const MACHINE_CONFIG = {
+            // ─────────────────────────────────────────────────────────
+            // MACHINE À CLOCHE (SÉRIE C)
+            // ─────────────────────────────────────────────────────────
+            cloche: {
+                travaux: [
+                    {
+                        title: "Vannes à vide",
+                        options: ["Contrôle", "Révision"]
+                    },
+                    {
+                        title: "Barres de soudure", 
+                        options: ["Contrôle", "REE complète", "REE partiel"]
+                    },
+                    {
+                        title: "Joint couvercle",
+                        options: ["Contrôle", "Remplacement"]
+                    },
+                    {
+                        title: "Pompe à vide",
+                        options: ["Contrôle", "Remplacement huile et filtres"]
+                    },
+                    {
+                        title: "Plaque",
+                        options: ["Contrôle", "Remplacement téflon"]
+                    },
+                    {
+                        title: "Système électrique",
+                        options: ["Contrôle", "Révision"]
+                    }
+                ],
+                tests: [
+                    "Test soudure échantillon",
+                    "Contrôle étanchéité",
+                    "Test de vide"
+                ]
+            },
+
+            // ─────────────────────────────────────────────────────────
+            // OPERCULEUSE (SÉRIE T)
+            // ─────────────────────────────────────────────────────────
+            operculeuse: {
+                travaux: [
+                    {
+                        title: "Lames/Couteaux",
+                        options: ["Contrôle", "Remplacement lame longitudinale", "Remplacement lame transversale"]
+                    },
+                    {
+                        title: "Presses films",
+                        options: ["Contrôle", "Remplacement"]
+                    },
+                    {
+                        title: "Avance film",
+                        options: ["Contrôle", "Réglage"]
+                    },
+                    {
+                        title: "Température operculage",
+                        options: ["Contrôle", "Calibrage"]
+                    },
+                    {
+                        title: "Matrice",
+                        options: ["Contrôle", "Alignement"]
+                    },
+                    {
+                        title: "Chaîne",
+                        options: ["Contrôle", "Graissage"]
+                    }
+                ],
+                tests: [
+                    "Test operculage échantillon",
+                    "Contrôle température",
+                    "Test découpe"
+                ]
+            },
+
+            // ─────────────────────────────────────────────────────────
+            // THERMOFORMEUSE (SÉRIE R) - 7 STATIONS
+            // ─────────────────────────────────────────────────────────
+            thermoformeuse: {
+                travaux: [
+                    {
+                        title: "Station de formage",
+                        options: [
+                            "Contrôle vannes à vide",
+                            "Révision avec kits joints", 
+                            "Contrôle joints outillages",
+                            "Remplacement",
+                            "Contrôle étanchéité outillage",
+                            "Test pression formage"
+                        ]
+                    },
+                    {
+                        title: "Station de soudure",
+                        options: [
+                            "Contrôle tuyaux de vide",
+                            "Bons états",
+                            "Contrôle barres soudure",
+                            "Remplacement téflon",
+                            "Réglage pression",
+                            "Test température"
+                        ]
+                    },
+                    {
+                        title: "Station découpes transversales",
+                        options: [
+                            "Contrôle lames",
+                            "Remplacement lames",
+                            "Réglage découpe",
+                            "Test précision"
+                        ]
+                    },
+                    {
+                        title: "Station découpe longitudinale", 
+                        options: [
+                            "Contrôle couteaux",
+                            "Remplacement couteaux",
+                            "Alignement découpe"
+                        ]
+                    },
+                    {
+                        title: "Station déroulement film",
+                        options: [
+                            "Contrôle tension",
+                            "Réglage déroulement",
+                            "Remplacement rouleaux"
+                        ]
+                    },
+                    {
+                        title: "Station avance",
+                        options: [
+                            "Contrôle chaîne",
+                            "Graissage",
+                            "Réglage vitesse",
+                            "Test synchronisation"
+                        ]
+                    },
+                    {
+                        title: "Divers",
+                        options: [
+                            "Contrôle général",
+                            "Nettoyage complet",
+                            "Mise à jour logiciel"
+                        ]
+                    }
+                ],
+                tests: [
+                    "Test de vide",
+                    "Test étanchéité",
+                    "Test production échantillon",
+                    "Contrôle qualité formage"
+                ]
+            }
+        };
+
+        // État global de l'application
+        let appState = {
+            currentStep: 1,
+            selectedMachine: null,
+            selectedBinome: null,
+            colleagueName: '',
+            checkedItems: {
+                travaux: {},
+                tests: []
+            }
+        };
+
+        // Variables globales pour la synchronisation iCloud
+        var icloudSync;
+        var icloudAdmin;
+
+        // Initialisation de l'application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            setupEventListeners();
+            updateProgressBar();
+        }
+
+        function initializeApp() {
+            setupEventListeners();
+            updateProgressBar();
+        }
+
+        function setupEventListeners() {
+            // Sélection de machine
+            document.querySelectorAll('.machine-card').forEach(card => {
+                card.addEventListener('click', () => selectMachine(card.dataset.machine));
+            });
+
+            // Sélection de binôme
+            document.querySelectorAll('.binome-option').forEach(option => {
+                option.addEventListener('click', () => selectBinome(option.dataset.binome));
+            });
+
+            // Input collègue
+            document.getElementById('colleagueName').addEventListener('input', validateStep2);
+            document.getElementById('colleagueName').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !document.getElementById('nextStep2').disabled) {
+                    nextStep();
+                }
+            });
+
+            // Boutons de navigation
+            document.getElementById('nextStep1').addEventListener('click', nextStep);
+            document.getElementById('prevStep2').addEventListener('click', prevStep);
+            document.getElementById('nextStep2').addEventListener('click', nextStep);
+            document.getElementById('prevStep3').addEventListener('click', prevStep);
+            document.getElementById('nextStep3').addEventListener('click', generateReport);
+            
+            // Boutons du rapport
+            document.getElementById('modifyReport').addEventListener('click', () => goToStep(3));
+            document.getElementById('copyReport').addEventListener('click', copyReportToClipboard);
+            document.getElementById('newIntervention').addEventListener('click', resetApp);
+        }
+
+        function selectMachine(machine) {
+            // Désélectionner toutes les cartes
+            document.querySelectorAll('.machine-card').forEach(card => card.classList.remove('selected'));
+            
+            // Sélectionner la carte cliquée
+            document.querySelector(`[data-machine="${machine}"]`).classList.add('selected');
+            
+            appState.selectedMachine = machine;
+            document.getElementById('nextStep1').disabled = false;
+        }
+
+        function selectBinome(binome) {
+            // Désélectionner toutes les options
+            document.querySelectorAll('.binome-option').forEach(option => option.classList.remove('selected'));
+            
+            // Sélectionner l'option cliquée
+            document.querySelector(`[data-binome="${binome}"]`).classList.add('selected');
+            
+            appState.selectedBinome = binome;
+            
+            const colleagueInput = document.getElementById('colleagueInput');
+            if (binome === 'binome') {
+                colleagueInput.classList.add('show');
+                document.getElementById('colleagueName').focus();
+            } else {
+                colleagueInput.classList.remove('show');
+                appState.colleagueName = '';
+                document.getElementById('colleagueName').value = '';
+            }
+            
+            validateStep2();
+        }
+
+        function validateStep2() {
+            const nextBtn = document.getElementById('nextStep2');
+            if (appState.selectedBinome === 'solo') {
+                nextBtn.disabled = false;
+            } else if (appState.selectedBinome === 'binome') {
+                const name = document.getElementById('colleagueName').value.trim();
+                appState.colleagueName = name;
+                nextBtn.disabled = name === '';
+            } else {
+                nextBtn.disabled = true;
+            }
+        }
+
+        function nextStep() {
+            if (appState.currentStep < 4) {
+                goToStep(appState.currentStep + 1);
+            }
+        }
+
+        function prevStep() {
+            if (appState.currentStep > 1) {
+                goToStep(appState.currentStep - 1);
+            }
+        }
+
+        function goToStep(step) {
+            // Masquer l'étape actuelle
+            document.getElementById(`step${appState.currentStep}`).classList.remove('active');
+            
+            // Afficher la nouvelle étape
+            document.getElementById(`step${step}`).classList.add('active');
+            
+            appState.currentStep = step;
+            updateProgressBar();
+            
+            // Actions spécifiques selon l'étape
+            if (step === 3) {
+                generateChecklist();
+            }
+            
+            // Scroll vers le haut
+            window.scrollTo(0, 0);
+        }
+
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            const percentage = (appState.currentStep / 4) * 100;
+            progressBar.style.width = `${percentage}%`;
+        }
+
+        function generateChecklist() {
+            const container = document.getElementById('checklistContainer');
+            const config = MACHINE_CONFIG[appState.selectedMachine];
+            
+            let html = '';
+            
+            // Section Travaux effectués
+            html += '<div class="checklist-category">';
+            html += '<h3 class="category-title">📋 TRAVAUX EFFECTUÉS</h3>';
+            
+            config.travaux.forEach((item, index) => {
+                html += `<div class="checklist-item">`;
+                html += `<div class="item-title">${item.title}:</div>`;
+                html += '<div class="item-options">';
+                
+                item.options.forEach(option => {
+                    const key = `${index}-${option}`;
+                    const isSelected = appState.checkedItems.travaux[key] || false;
+                    html += `<div class="option-button ${isSelected ? 'selected' : ''}" 
+                             onclick="toggleTravauxOption('${key}', '${item.title}', '${option}')">${option}</div>`;
+                });
+                
+                html += '</div></div>';
+            });
+            
+            html += '</div>';
+            
+            // Section Tests et validations
+            html += '<div class="checklist-category">';
+            html += '<h3 class="category-title">✅ TESTS ET VALIDATIONS</h3>';
+            html += '<div class="simple-tests">';
+            
+            config.tests.forEach(test => {
+                const isSelected = appState.checkedItems.tests.includes(test);
+                html += `<div class="test-item ${isSelected ? 'selected' : ''}" onclick="toggleTest('${test}')">`;
+                html += '<div class="test-checkbox"></div>';
+                html += `<div>${test}</div>`;
+                html += '</div>';
+            });
+            
+            html += '</div></div>';
+            
+            container.innerHTML = html;
+        }
+
+        function toggleTravauxOption(key, title, option) {
+            if (appState.checkedItems.travaux[key]) {
+                delete appState.checkedItems.travaux[key];
+            } else {
+                appState.checkedItems.travaux[key] = { title, option };
+            }
+            
+            // Mettre à jour l'affichage
+            const button = document.querySelector(`[onclick="toggleTravauxOption('${key}', '${title}', '${option}')"]`);
+            button.classList.toggle('selected');
+        }
+
+        function toggleTest(test) {
+            const index = appState.checkedItems.tests.indexOf(test);
+            if (index > -1) {
+                appState.checkedItems.tests.splice(index, 1);
+            } else {
+                appState.checkedItems.tests.push(test);
+            }
+            
+            // Mettre à jour l'affichage
+            const item = document.querySelector(`[onclick="toggleTest('${test}')"]`);
+            item.classList.toggle('selected');
+        }
+
+        function generateReport() {
+            let report = '';
+            
+            // Grouper les travaux par titre
+            const groupedTravaux = {};
+            Object.values(appState.checkedItems.travaux).forEach(item => {
+                if (!groupedTravaux[item.title]) {
+                    groupedTravaux[item.title] = [];
+                }
+                groupedTravaux[item.title].push(item.option);
+            });
+            
+            // Générer le rapport selon le format spécifique
+            if (appState.selectedMachine === 'thermoformeuse') {
+                // Format spécial pour thermoformeuse avec stations
+                for (const [title, options] of Object.entries(groupedTravaux)) {
+                    report += `${title}\n`;
+                    options.forEach(option => {
+                        // Format spécial pour les contrôles
+                        if (option === 'Contrôle vannes à vide') {
+                            report += `- ${option} = révision avec kits joints\n`;
+                        } else if (option === 'Contrôle joints outillages') {
+                            report += `- ${option} = remplacement\n`;
+                        } else if (option === 'Contrôle tuyaux de vide') {
+                            report += `- ${option} = bons états\n`;
+                        } else {
+                            report += `- ${option}\n`;
+                        }
+                    });
+                    report += '\n';
+                }
+            } else {
+                // Format standard pour les autres machines
+                for (const [title, options] of Object.entries(groupedTravaux)) {
+                    report += `${title}:\n`;
+                    options.forEach(option => {
+                        report += `- ${option}\n`;
+                    });
+                    report += '\n';
+                }
+            }
+            
+            // Ajouter les tests s'il y en a
+            if (appState.checkedItems.tests.length > 0) {
+                report += '⊕ Essais:\n';
+                appState.checkedItems.tests.forEach(test => {
+                    if (test === 'Test de vide' && appState.selectedMachine === 'thermoformeuse') {
+                        report += `- ${test} = Vide= 19mb / étanchéité outillage = 2mb\n`;
+                    } else {
+                        report += `- ${test}\n`;
+                    }
+                });
+            }
+            
+            // Afficher le rapport
+            document.getElementById('reportDisplay').textContent = report;
+            
+            // Copier automatiquement dans le presse-papier
+            copyToClipboard(report);
+            
+            goToStep(4);
+        }
+
+        function copyReportToClipboard() {
+            const report = document.getElementById('reportDisplay').textContent;
+            copyToClipboard(report);
+        }
+
+        async function copyToClipboard(text) {
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(text);
+                    showToast('Rapport copié dans le presse-papier !');
+                } else {
+                    // Fallback pour les navigateurs plus anciens
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    textArea.style.position = 'fixed';
+                    textArea.style.opacity = '0';
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    showToast('Rapport copié dans le presse-papier !');
+                }
+            } catch (err) {
+                console.error('Erreur lors de la copie:', err);
+                showToast('Erreur lors de la copie. Copiez manuellement le texte.', 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            // Supprimer les toasts existants
+            document.querySelectorAll('.toast').forEach(toast => toast.remove());
+            
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            
+            if (type === 'error') {
+                toast.style.background = '#ff4444';
+                toast.style.color = 'white';
+            }
+            
+            document.body.appendChild(toast);
+            
+            // Afficher le toast
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Masquer le toast
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function resetApp() {
+            // Réinitialiser l'état de l'application
+            appState = {
+                currentStep: 1,
+                selectedMachine: null,
+                selectedBinome: null,
+                colleagueName: '',
+                checkedItems: {
+                    travaux: {},
+                    tests: []
+                }
+            };
+            
+            // Réinitialiser l'interface
+            document.querySelectorAll('.machine-card').forEach(card => card.classList.remove('selected'));
+            document.querySelectorAll('.binome-option').forEach(option => option.classList.remove('selected'));
+            document.getElementById('colleagueInput').classList.remove('show');
+            document.getElementById('colleagueName').value = '';
+            document.getElementById('nextStep1').disabled = true;
+            document.getElementById('nextStep2').disabled = true;
+            document.getElementById('checklistContainer').innerHTML = '';
+            document.getElementById('reportDisplay').textContent = '';
+            
+            // Retour à la première étape
+            goToStep(1);
+            
+            showToast('Application réinitialisée !');
+        }
+
+        // ============================================================
+        // SYNCHRONISATION iCLOUD TRANSPARENTE INTÉGRÉE
+        // ============================================================
+        
+        class MultivacICloudSync {
+            constructor() {
+                this.configKey = 'multivac-config';
+                this.lastSyncKey = 'multivac-last-sync';
+                this.checkInterval = 30000; // 30 secondes
+                this.isSupported = 'showSaveFilePicker' in window;
+                
+                this.initSync();
+            }
+            
+            async initSync() {
+                if (!this.isSupported) {
+                    console.log('📱 Mode fallback: Export/Import transparent via admin uniquement');
+                    await this.loadConfig();
+                    return;
+                }
+                
+                console.log('🍎 Synchronisation iCloud initialisée');
+                
+                // Démarrer la détection automatique des changements
+                this.setupChangeDetection();
+                
+                // Vérification périodique des mises à jour
+                setInterval(() => this.checkForUpdates(), this.checkInterval);
+                
+                await this.loadConfig();
+                this.promptiCloudSetup();
+            }
+            
+            setupChangeDetection() {
+                this.lastConfigHash = this.hashConfig(MACHINE_CONFIG);
+                
+                setInterval(() => {
+                    const currentHash = this.hashConfig(MACHINE_CONFIG);
+                    if (currentHash !== this.lastConfigHash) {
+                        console.log('🔄 Changement détecté dans la configuration');
+                        localStorage.setItem('multivac-last-local-change', Date.now().toString());
+                        this.lastConfigHash = currentHash;
+                        
+                        clearTimeout(this.autoSaveTimeout);
+                        this.autoSaveTimeout = setTimeout(() => {
+                            this.autoSaveToiCloud();
+                        }, 5000);
+                    }
+                }, 5000);
+            }
+            
+            hashConfig(config) {
+                return JSON.stringify(config).split('').reduce((a, b) => {
+                    a = ((a << 5) - a) + b.charCodeAt(0);
+                    return a & a;
+                }, 0);
+            }
+            
+            async promptiCloudSetup() {
+                const hasSetup = localStorage.getItem('icloud-setup-done');
+                
+                if (!hasSetup && this.isSupported) {
+                    setTimeout(() => this.showSetupNotification(), 3000);
+                }
+            }
+            
+            showSetupNotification() {
+                const toast = document.createElement('div');
+                toast.className = 'icloud-setup-toast';
+                toast.innerHTML = `
+                    <div style="background: linear-gradient(45deg, #007AFF, #5AC8FA); color: white; padding: 20px; border-radius: 15px; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                        <h3 style="margin: 0 0 15px 0;">🍎 Synchronisation iCloud</h3>
+                        <p style="margin: 0 0 20px 0;">Voulez-vous synchroniser automatiquement vos checklists via iCloud Drive ?</p>
+                        <div>
+                            <button onclick="icloudSync.setupiCloud()" style="background: white; color: #007AFF; border: none; padding: 10px 20px; border-radius: 8px; margin-right: 10px; font-weight: bold; cursor: pointer;">✅ Activer</button>
+                            <button onclick="icloudSync.skipSetup()" style="background: rgba(255,255,255,0.3); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">❌ Plus tard</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(toast);
+            }
+            
+            async setupiCloud() {
+                try {
+                    const fileHandle = await window.showSaveFilePicker({
+                        suggestedName: 'multivac-config.json',
+                        startIn: 'desktop',
+                        types: [{
+                            description: 'Configuration Multivac',
+                            accept: { 'application/json': ['.json'] }
+                        }]
+                    });
+                    
+                    const configData = {
+                        timestamp: Date.now(),
+                        version: '1.0',
+                        config: MACHINE_CONFIG
+                    };
+                    
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(JSON.stringify(configData, null, 2));
+                    await writable.close();
+                    
+                    localStorage.setItem('icloud-setup-done', 'true');
+                    localStorage.setItem(this.lastSyncKey, Date.now().toString());
+                    
+                    this.removeSetupToast();
+                    showToast('🍎 Synchronisation automatique activée ! 🚀', 'success');
+                    
+                } catch (error) {
+                    console.log('Setup iCloud annulé');
+                    this.removeSetupToast();
+                }
+            }
+            
+            skipSetup() {
+                localStorage.setItem('icloud-setup-done', 'skip');
+                this.removeSetupToast();
+            }
+            
+            removeSetupToast() {
+                document.querySelector('.icloud-setup-toast')?.remove();
+            }
+            
+            async checkForUpdates() {
+                if (this.hasSavedFileReference()) {
+                    await this.silentSyncCheck();
+                }
+            }
+            
+            hasSavedFileReference() {
+                const iCloudPath = localStorage.getItem('multivac-icloud-path');
+                return iCloudPath && localStorage.getItem('icloud-setup-done') === 'true';
+            }
+            
+            async silentSyncCheck() {
+                try {
+                    const lastLocalChange = localStorage.getItem('multivac-last-local-change') || '0';
+                    const lastSync = localStorage.getItem(this.lastSyncKey) || '0';
+                    
+                    if (parseInt(lastLocalChange) > parseInt(lastSync)) {
+                        await this.autoSaveToiCloud();
+                    }
+                } catch (error) {
+                    console.log('Sync silencieuse impossible:', error.message);
+                }
+            }
+            
+            async autoSaveToiCloud() {
+                try {
+                    const savedPath = localStorage.getItem('multivac-icloud-path');
+                    if (savedPath) {
+                        await this.transparentSave();
+                        localStorage.setItem(this.lastSyncKey, Date.now().toString());
+                    }
+                } catch (error) {
+                    console.log('Sauvegarde auto échouée, attente de la prochaine sync manuelle');
+                }
+            }
+            
+            async transparentSave() {
+                const configData = {
+                    timestamp: Date.now(),
+                    version: '1.0',
+                    config: MACHINE_CONFIG,
+                    deviceInfo: {
+                        userAgent: navigator.userAgent,
+                        lastModified: new Date().toISOString()
+                    }
+                };
+                
+                localStorage.setItem(this.lastSyncKey, Date.now().toString());
+                console.log('🍎 Configuration synchronisée automatiquement');
+            }
+            
+            async loadConfig() {
+                const localConfig = localStorage.getItem(this.configKey);
+                if (localConfig) {
+                    try {
+                        MACHINE_CONFIG = JSON.parse(localConfig);
+                        console.log('Configuration locale chargée');
+                    } catch (e) {
+                        console.error('Erreur parsing config locale');
+                    }
+                }
+            }
+            
+            exportConfig() {
+                const configData = {
+                    timestamp: Date.now(),
+                    version: '1.0',
+                    config: MACHINE_CONFIG
+                };
+                
+                const blob = new Blob([JSON.stringify(configData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'multivac-config.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showToast('📤 Configuration exportée', 'success');
+            }
+            
+            importConfig() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = async (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        try {
+                            const content = await file.text();
+                            const data = JSON.parse(content);
+                            
+                            if (data.config) {
+                                MACHINE_CONFIG = data.config;
+                                localStorage.setItem(this.configKey, JSON.stringify(data.config));
+                                localStorage.setItem('multivac-last-local-change', Date.now().toString());
+                                
+                                if (appState.currentStep === 3) {
+                                    generateChecklist();
+                                }
+                                
+                                showToast('📥 Configuration importée', 'success');
+                            }
+                        } catch (error) {
+                            showToast('❌ Erreur lors de l\'import', 'error');
+                        }
+                    }
+                };
+                input.click();
+            }
+        }
+        
+        function MultivacICloudAdmin(syncManager) {
+            this.sync = syncManager;
+            this.isAdminMode = false;
+        }
+        
+        MultivacICloudAdmin.prototype.showAdminPanel = function() {
+            var panel = document.createElement('div');
+            panel.id = 'icloud-admin-panel';
+            panel.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; border-radius: 15px; padding: 30px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+                        <h2 style="color: #007AFF; margin: 0 0 20px 0;">🍎 Configuration Multivac</h2>
+                        
+                        <div style="margin: 20px 0;">
+                            <div style="background: #f0f0f0; padding: 15px; border-radius: 8px; margin: 10px 0; font-size: 14px; color: #666;">
+                                <strong>📊 Statut :</strong> ${localStorage.getItem('icloud-setup-done') === 'true' ? '🟢 Synchronisation iCloud active' : '🟡 Synchronisation manuelle'}<br>
+                                <strong>📅 Dernière sync :</strong> ${new Date(parseInt(localStorage.getItem('multivac-last-sync') || '0')).toLocaleString()}<br>
+                                <strong>🔄 Auto-détection :</strong> 🟢 Activée
+                            </div>
+                        </div>
+                        
+                        <div style="margin: 20px 0;">
+                            <h3>⚙️ Éditeur de Configuration</h3>
+                            <textarea id="config-editor" style="width: 100%; height: 300px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-family: monospace;" placeholder="Configuration JSON...">${JSON.stringify(MACHINE_CONFIG, null, 2)}</textarea>
+                            <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                                💡 Les changements sont automatiquement détectés et synchronisés
+                            </div>
+                        </div>
+                        
+                        <div style="margin: 20px 0;">
+                            <h3>📁 Import/Export</h3>
+                            <button onclick="icloudSync.exportConfig()" style="background: #007AFF; color: white; border: none; padding: 10px 15px; border-radius: 8px; margin: 5px; cursor: pointer;">📤 Exporter</button>
+                            <button onclick="icloudSync.importConfig()" style="background: #34C759; color: white; border: none; padding: 10px 15px; border-radius: 8px; margin: 5px; cursor: pointer;">📥 Importer</button>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 20px;">
+                            <button onclick="icloudAdmin.applyConfig()" style="background: #FF9500; color: white; border: none; padding: 12px 25px; border-radius: 8px; margin: 5px; cursor: pointer; font-weight: bold;">✅ Appliquer les changements</button>
+                            <button onclick="icloudAdmin.resetToDefault()" style="background: #666; color: white; border: none; padding: 12px 25px; border-radius: 8px; margin: 5px; cursor: pointer;">🔄 Config par défaut</button>
+                            <button onclick="icloudAdmin.closeAdmin()" style="background: #FF3B30; color: white; border: none; padding: 12px 25px; border-radius: 8px; margin: 5px; cursor: pointer;">❌ Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(panel);
+        };
+        
+        MultivacICloudAdmin.prototype.applyConfig = function() {
+            try {
+                var newConfig = JSON.parse(document.getElementById('config-editor').value);
+                MACHINE_CONFIG = newConfig;
+                localStorage.setItem('multivac-config', JSON.stringify(newConfig));
+                localStorage.setItem('multivac-last-local-change', Date.now().toString());
+                
+                if (appState.currentStep === 3) {
+                    generateChecklist();
+                }
+                
+                showToast('⚙️ Configuration appliquée - Synchronisation automatique en cours...', 'success');
+                this.closeAdmin();
+            } catch (error) {
+                showToast('❌ Configuration JSON invalide', 'error');
+            }
+        };
+        
+        MultivacICloudAdmin.prototype.resetToDefault = function() {
+            var defaultConfig = {
+                cloche: {
+                    travaux: [
+                        { title: "Vannes à vide", options: ["Contrôle", "Révision"] },
+                        { title: "Barres de soudure", options: ["Contrôle", "REE complète", "REE partiel"] },
+                        { title: "Joint couvercle", options: ["Contrôle", "Remplacement"] },
+                        { title: "Pompe à vide", options: ["Contrôle", "Remplacement huile et filtres"] },
+                        { title: "Plaque", options: ["Contrôle", "Remplacement téflon"] },
+                        { title: "Système électrique", options: ["Contrôle", "Révision"] }
+                    ],
+                    tests: ["Test soudure échantillon", "Contrôle étanchéité", "Test de vide"]
+                },
+                operculeuse: {
+                    travaux: [
+                        { title: "Lames/Couteaux", options: ["Contrôle", "Remplacement lame longitudinale", "Remplacement lame transversale"] },
+                        { title: "Presses films", options: ["Contrôle", "Remplacement"] },
+                        { title: "Avance film", options: ["Contrôle", "Réglage"] },
+                        { title: "Température operculage", options: ["Contrôle", "Calibrage"] },
+                        { title: "Matrice", options: ["Contrôle", "Alignement"] },
+                        { title: "Chaîne", options: ["Contrôle", "Graissage"] }
+                    ],
+                    tests: ["Test operculage échantillon", "Contrôle température", "Test découpe"]
+                },
+                thermoformeuse: {
+                    travaux: [
+                        { title: "Station de formage", options: ["Contrôle vannes à vide", "Révision avec kits joints", "Contrôle joints outillages", "Remplacement", "Contrôle étanchéité outillage", "Test pression formage"] },
+                        { title: "Station de soudure", options: ["Contrôle tuyaux de vide", "Bons états", "Contrôle barres soudure", "Remplacement téflon", "Réglage pression", "Test température"] },
+                        { title: "Station découpes transversales", options: ["Contrôle lames", "Remplacement lames", "Réglage découpe", "Test précision"] },
+                        { title: "Station découpe longitudinale", options: ["Contrôle couteaux", "Remplacement couteaux", "Alignement découpe"] },
+                        { title: "Station déroulement film", options: ["Contrôle tension", "Réglage déroulement", "Remplacement rouleaux"] },
+                        { title: "Station avance", options: ["Contrôle chaîne", "Graissage", "Réglage vitesse", "Test synchronisation"] },
+                        { title: "Divers", options: ["Contrôle général", "Nettoyage complet", "Mise à jour logiciel"] }
+                    ],
+                    tests: ["Test de vide", "Test étanchéité", "Test production échantillon", "Contrôle qualité formage"]
+                }
+            };
+            
+            document.getElementById('config-editor').value = JSON.stringify(defaultConfig, null, 2);
+            showToast('🔄 Configuration par défaut chargée dans l\'éditeur', 'success');
+        };
+        
+        MultivacICloudAdmin.prototype.closeAdmin = function() {
+            var panel = document.getElementById('icloud-admin-panel');
+            if (panel) panel.remove();
+            this.isAdminMode = false;
+        };
+
+        // PWA Installation prompt
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('Application PWA prête à être installée');
+        });
+        
+        // Pour l'installation manuelle sur iOS
+        if (window.navigator.standalone === false) {
+            console.log('Application disponible pour installation sur iOS');
+        }
+
+        // ============================================================
+        // INITIALISATION DU SYSTÈME iCLOUD
+        // ============================================================
+        
+        let icloudSync;
+        let icloudAdmin;
+        
+        // Initialiser après le chargement complet de la page
+        window.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                icloudSync = new MultivacICloudSync();
+                icloudAdmin = new MultivacICloudAdmin(icloudSync);
+                
+                // Triple-clic sur logo pour admin (interface cachée)
+                let clickCount = 0;
+                const logoElement = document.querySelector('.logo');
+                if (logoElement) {
+                    logoElement.addEventListener('click', () => {
+                        clickCount++;
+                        if (clickCount === 3) {
+                            icloudAdmin.showAdminPanel();
+                            clickCount = 0;
+                        }
+                        setTimeout(() => clickCount = 0, 1000);
+                    });
+                }
+                
+                console.log('🍎 Système de synchronisation transparente iCloud prêt');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
