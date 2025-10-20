@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Checklist CE – Rapport texte (SAP FSM)</title>
+<meta name="color-scheme" content="light dark">
+<style>
+  :root{
+    --bg:#f6f7fb; --paper:#fff; --ink:#111827; --muted:#6b7280;
+    --brand:#0ea5e9; --accent:#60a5fa; --border:#e5e7eb; --shadow:0 8px 24px rgba(0,0,0,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#0b1220; --paper:#0f172a; --ink:#e5e7eb; --muted:#9ca3af; --border:#1f2937; --shadow:0 8px 24px rgba(0,0,0,.35); --accent:#38bdf8; }
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--ink)}
+  .wrap{max-width:1100px; margin:24px auto; padding:0 16px}
+  header{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; flex-wrap:wrap}
+  .brand{display:flex; align-items:center; gap:10px}
+  .logo{width:36px; height:36px; border-radius:8px; background:linear-gradient(135deg,var(--brand),var(--accent)); box-shadow:var(--shadow)}
+  h1{font-size:18px; margin:0}
+  .toolbar{display:flex; gap:8px; flex-wrap:wrap}
+  button{border:1px solid var(--border); background:var(--paper); color:var(--ink); padding:10px 14px; border-radius:12px; font-weight:600; cursor:pointer; box-shadow:var(--shadow); min-height:44px}
+  button.primary{background:var(--brand); color:#fff; border-color:transparent}
+  button:active{transform:translateY(1px)}
+  .layout{display:grid; grid-template-columns:1fr; gap:16px}
+  @media (min-width:980px){ .layout{grid-template-columns:1.15fr 0.85fr} }
+  .card{background:var(--paper); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); padding:16px}
+  .card h2{margin:6px 0 12px; font-size:18px}
+  .grid{display:grid; gap:8px}
+  .grid.cols-2{grid-template-columns:1fr 1fr}
+  .tiny{font-size:12px; color:var(--muted)}
+  .muted{color:var(--muted)}
+  select,input[type="text"],textarea{width:100%; min-height:44px; padding:10px 12px; border-radius:12px; border:1px solid var(--border); background:transparent; color:inherit}
+  textarea.report{width:100%; min-height:380px; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace}
+  .template-bar{display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap; margin:6px 0 8px}
+  .template-bar > div{display:flex; gap:8px; align-items:center}
+
+  /* Bloc/arborescence */
+  .tree{display:block}
+  .node{display:flex; align-items:center; gap:8px; padding:8px; border:1px solid var(--border); border-radius:12px; background:var(--paper); margin:6px 0}
+  .node .lbl{flex:1; min-width:140px}
+  .node .tools{display:flex; gap:6px; flex-wrap:wrap}
+  .children{margin-left:18px; border-left:2px dashed var(--border); padding-left:10px}
+  .node .idx{color:var(--muted); font-size:12px; min-width:36px; text-align:right}
+
+  .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  .spacer{flex:1}
+  .pill{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid var(--border); border-radius:999px; background:var(--paper)}
+
+  /* iOS: éviter zoom au focus */
+  @supports (-webkit-touch-callout: none){
+    input, select, textarea, button{ font-size:16px; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <h1>Checklist CE – Rapport texte (SAP FSM)</h1>
+      </div>
+      <div class="toolbar">
+        <button id="copyBtn" class="primary" type="button">Copier le rapport</button>
+        <button id="resetBtn" type="button" title="Réinitialiser">Réinitialiser</button>
+        <button id="exportBtn" type="button" title="Exporter modèles (.json)">Exporter modèles</button>
+        <label class="pill" for="importFile" title="Importer modèles (.json)">
+          Importer <input id="importFile" type="file" accept="application/json" style="display:none">
+        </label>
+      </div>
+    </header>
+
+    <div class="layout">
+      <!-- Éditeur & modèles -->
+      <section class="card">
+        <h2>Éditeur de checklist (blocs)</h2>
+
+        <div class="template-bar">
+          <div>
+            <label for="templateSel">Modèle</label>
+            <select id="templateSel"></select>
+          </div>
+          <div>
+            <button id="applyTpl" type="button" title="Remplace la checklist">Appliquer (remplacer)</button>
+            <button id="appendTpl" type="button" title="Ajoute les items du modèle">Ajouter à la suite</button>
+          </div>
+          <div class="spacer"></div>
+          <div class="pill">
+            <label for="tplName">Nom du modèle</label>
+            <input id="tplName" type="text" placeholder="ex. TX710 – Pack préventif" style="width:220px">
+            <select id="tplType" title="Type">
+              <option value="Standard">Standard</option>
+              <option value="R">R – Thermoformeuse</option>
+              <option value="T">T – Operculeuse</option>
+              <option value="B">B – Machine à cloche</option>
+              <option value="Autre">Autre</option>
+            </select>
+            <button id="saveTpl" type="button" title="Sauver comme modèle">Sauver modèle</button>
+            <button id="deleteTpl" type="button" title="Supprimer le modèle">Supprimer modèle</button>
+          </div>
+        </div>
+
+        <div class="tiny">Astuce : construis ton arborescence en **indant** les blocs (Sous‑bloc), **dupliquant**, **déplaçant** (↑/↓) et **supprimant** ce qui ne sert pas. Chaque bloc a une **case** et un **statut**.</div>
+
+        <div id="tree" class="tree" aria-live="polite"></div>
+      </section>
+
+      <!-- Rapport texte -->
+      <section class="card">
+        <h2>Rapport (texte brut)</h2>
+        <textarea id="reportOut" class="report" readonly></textarea>
+        <div class="row" style="margin-top:8px">
+          <div id="counter" class="tiny">0 caractères</div>
+          <div class="spacer"></div>
+          <div class="tiny">Copier puis coller dans SAP FSM (iPhone/iPad/PC).</div>
+        </div>
+
+        <h3 style="margin-top:18px">Pièces remplacées</h3>
+        <textarea id="parts" placeholder="Référence – Désignation – Qté (une par ligne)"></textarea>
+        <div class="tiny">Cette section est incluse en fin de rapport.</div>
+      </section>
+    </div>
+  </div>
+
+  <textarea id="scratch" style="position:absolute; left:-9999px; top:-9999px; opacity:0" aria-hidden="true"></textarea>
+
+<script>
+/* =========================
+   Données & modèles
+   ========================= */
+const STORAGE = {
+  state: "ce_state_v1",
+  templates: "ce_templates_v1"
+};
+
+function uid(){ return Math.random().toString(36).slice(2,9); }
+
+// Arbre: [{id,label,checked,level,children:[...]}]
+let tree = [];
+let lib = loadTemplates();
+let state = loadState();
+
+/* ===== Modèles par gamme (défaut) =====
+   NB: tu peux éditer/ajouter depuis l’UI, puis Export JSON.
+*/
+const DEFAULT_TEMPLATES = [
+  {
+    id:"tpl_standard", name:"Standard (générique)", type:"Standard",
+    items:[
+      n("Contrôle visuel général / capots / sécurité",true,"OK"),
+      n("Niveaux & lubrification (pompes, réducteurs)",true,"OK"),
+      n("Circuit vide : pompes / filtres / étanchéité",true,"OK"),
+      n("Pneumatique : filtres / fuites / pression",true,"OK"),
+      n("Électrique : connexions / capteurs / câbles",true,"OK"),
+      n("Mises à jour / sauvegardes paramètres",false,"À surveiller"),
+      n("Hygiène / nettoyage zones produit",true,"OK"),
+      n("Outils de coupe / chauffage / scellage",true,"À surveiller"),
+      n("Essais de sécurité (arrêt d’urgence, barrières)",true,"OK"),
+      n("Essais de production & validation",true,"OK")
+    ]
+  },
+  {
+    id:"tpl_R", name:"R – Thermoformeuse", type:"R",
+    items:[
+      n("Station de formage",true,"OK",[
+        n("Réseau de vide",true,"OK",[
+          n("Révision vannes de vide",true,"OK"),
+          n("Tuyaux",true,"OK",[
+            n("Remplacement",false,"OK"),
+            n("Contrôle",true,"OK")
+          ])
+        ]),
+        n("Remplacement des joints de 3,2 mm",false,"OK"),
+        n("Remplacement des joints de socle",false,"OK"),
+        n("Remplacement des joints du bloc de connections",true,"OK"),
+        n("Remplacement des couteaux de vide et gaz",false,"OK"),
+        n("Réglage en hauteur",true,"OK",[
+          n("Remplacement des roulements",false,"OK"),
+          n("Remplacement des joints",false,"OK"),
+          n("Remplacement des vis sans fin",false,"OK"),
+          n("Remplacement de la chaîne",false,"OK")
+        ])
+      ]),
+      n("Station de scellage (plaque, surface, température, pression)",true,"OK"),
+      n("Avance chaîne / pinces (alignement, lubrification)",true,"OK"),
+      n("Coupe longitudinale & transversale (lames, alignement)",true,"À surveiller"),
+      n("Vide / gaz (pompes, filtres, fuites, MAP)",true,"OK"),
+      n("Air comprimé (pression, filtre, fuites)",true,"OK"),
+      n("Refroidissement eau (débit, température)",true,"OK"),
+      n("Évacuation des chutes / propreté machine",true,"OK"),
+      n("Sécurité & capotages (arrêt d’urgence, inter-verrouillages)",true,"OK"),
+      n("Marquage / impression (si présent)",false,"À surveiller"),
+      n("Essai production & validation du scellage",true,"OK")
+    ]
+  },
+  {
+    id:"tpl_T", name:"T – Operculeuse", type:"T",
+    items:[
+      n("Convoyeur d’entrée / alignement barquettes",true,"OK"),
+      n("Transport barquettes / poussoirs / centrage",true,"OK"),
+      n("Outil / plateau de scellage (planéité, état, chauffe)",true,"OK"),
+      n("Scellage (température/pression/temps)",true,"OK"),
+      n("Vide / gaz (MAP) / fuite",true,"OK"),
+      n("Déroulage film (frein, alignement, danseur)",true,"OK"),
+      n("Détection capteurs / cellules / sécurité",true,"OK"),
+      n("Hygiène & nettoyage zone produit",true,"OK"),
+      n("Étiquetage / marquage (si présent)",false,"À surveiller"),
+      n("Essai production & qualité de scellage",true,"OK")
+    ]
+  },
+  {
+    id:"tpl_B", name:"B – Machine à cloche", type:"B",
+    items:[
+      n("Joints de couvercle/chambre (état, propreté)",true,"OK"),
+      n("Barres de soudure / téflon / fils résistifs",true,"OK"),
+      n("Pompe à vide (niveau d’huile, filtre, bruit)",true,"OK"),
+      n("Cycle de test (vide, maintien, soudure)",true,"OK"),
+      n("Couvercle / charnières / vérins",true,"OK"),
+      n("Convoyeur/ceinture (alignement, tension) – si présent",false,"À surveiller"),
+      n("Électricité & câbles (usure, connexions)",true,"OK"),
+      n("Sécurité (inter-verrouillage, arrêts)",true,"OK"),
+      n("Hygiène / nettoyage",true,"OK")
+    ]
+  },
+  {
+    id:"tpl_TX710", name:"TX710 – Modèle dédié", type:"T",
+    items:[
+      n("Révision des vannes de vide",true,"OK"),
+      n("Contrôle & remplacement joints outillage 1V2R",true,"OK"),
+      n("Remplacement des joints du bloc de connections",true,"OK"),
+      n("Test de vide : atteindre 10 mbar, étanchéité reprise 10 mbar",true,"OK"),
+      n("Essais avec film & barquettes",true,"OK")
+    ]
+  }
+];
+
+function n(label, checked=false, level="OK", children=[]){
+  return { id: uid(), label, checked, level, children };
+}
+
+/* =========================
+   Persistance
+   ========================= */
+function loadTemplates(){
+  try{
+    const raw = localStorage.getItem(STORAGE.templates);
+    if(!raw){ localStorage.setItem(STORAGE.templates, JSON.stringify(DEFAULT_TEMPLATES)); return structuredClone(DEFAULT_TEMPLATES); }
+    const arr = JSON.parse(raw);
+    if(!Array.isArray(arr) || !arr.length){ localStorage.setItem(STORAGE.templates, JSON.stringify(DEFAULT_TEMPLATES)); return structuredClone(DEFAULT_TEMPLATES); }
+    return arr;
+  }catch(e){ return structuredClone(DEFAULT_TEMPLATES); }
+}
+function saveTemplates(){
+  try{ localStorage.setItem(STORAGE.templates, JSON.stringify(lib)); }catch(e){}
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE.state);
+    if(!raw){ return { parts:"", lastTpl:"tpl_standard", tree: structuredClone(DEFAULT_TEMPLATES[0].items) }; }
+    const s = JSON.parse(raw);
+    return { parts: s.parts||"", lastTpl: s.lastTpl||"tpl_standard", tree: Array.isArray(s.tree)? s.tree : structuredClone(DEFAULT_TEMPLATES[0].items) };
+  }catch(e){ return { parts:"", lastTpl:"tpl_standard", tree: structuredClone(DEFAULT_TEMPLATES[0].items) }; }
+}
+function saveState(){
+  try{ localStorage.setItem(STORAGE.state, JSON.stringify({ parts: state.parts, lastTpl: state.lastTpl, tree })); }catch(e){}
+}
+
+/* =========================
+   Rendu de l'arbre / édition
+   ========================= */
+const elTree = document.getElementById("tree");
+function renderTree(){
+  elTree.innerHTML = "";
+  tree.forEach((node, idx)=> elTree.appendChild(renderNode(node, null, idx)));
+  renderText();
+}
+
+function renderNode(node, parent, idx){
+  const wrap = document.createElement("div");
+  wrap.className = "node"; wrap.dataset.id = node.id;
+
+  // éléments
+  const ck = document.createElement("input");
+  ck.type = "checkbox"; ck.checked = !!node.checked;
+  ck.addEventListener("change", ()=>{ node.checked = ck.checked; saveState(); renderText(); });
+
+  const lbl = document.createElement("input");
+  lbl.className = "lbl"; lbl.type = "text"; lbl.value = node.label || "";
+  lbl.addEventListener("input", ()=>{ node.label = lbl.value; saveState(); renderText(); });
+
+  const sel = document.createElement("select");
+  ["OK","À surveiller","À corriger"].forEach(v=>{
+    const opt = document.createElement("option"); opt.value = v; opt.textContent = v; if(node.level===v) opt.selected = true; sel.appendChild(opt);
+  });
+  sel.addEventListener("change", ()=>{ node.level = sel.value; saveState(); renderText(); });
+
+  const idxSpan = document.createElement("div");
+  idxSpan.className="idx"; idxSpan.textContent = "#"+(idx+1);
+
+  const tools = document.createElement("div");
+  tools.className = "tools";
+  tools.append(
+    makeBtn("Frère +", ()=> addSibling(node,parent)),
+    makeBtn("Sous-bloc", ()=> addChild(node)),
+    makeBtn("⧉", ()=> duplicateNode(node,parent), "Dupliquer"),
+    makeBtn("↑", ()=> moveUp(node,parent)),
+    makeBtn("↓", ()=> moveDown(node,parent)),
+    makeBtn("→", ()=> indentNode(node,parent)),
+    makeBtn("←", ()=> outdentNode(node,parent)),
+    makeBtn("🗑️", ()=> deleteNode(node,parent), "Supprimer")
+  );
+
+  wrap.append(ck,lbl,sel,idxSpan,tools);
+
+  if(node.children && node.children.length){
+    const ch = document.createElement("div");
+    ch.className="children";
+    node.children.forEach((c,i)=> ch.appendChild(renderNode(c,node,i)));
+    wrap.appendChild(ch);
+  }
+  return wrap;
+}
+
+function makeBtn(txt, fn, title=""){ const b=document.createElement("button"); b.type="button"; b.textContent=txt; if(title) b.title=title; b.addEventListener("click",()=>{ fn(); saveState(); renderTree(); }); return b; }
+
+/* ===== opérations sur l'arbre ===== */
+function findParentAndIndex(targetId, nodes=tree, parent=null){
+  for(let i=0;i<nodes.length;i++){
+    const nd = nodes[i];
+    if(nd.id===targetId) return {parent, nodes, index:i};
+    if(nd.children?.length){
+      const r = findParentAndIndex(targetId, nd.children, nd);
+      if(r) return r;
+    }
+  }
+  return null;
+}
+function addSibling(node,parent){
+  const loc = findParentAndIndex(node.id);
+  if(!loc) return;
+  loc.nodes.splice(loc.index+1,0,{ id:uid(), label:"Nouveau bloc", checked:false, level:"OK", children:[] });
+}
+function addChild(node){
+  node.children = node.children||[];
+  node.children.push({ id:uid(), label:"Sous-bloc", checked:false, level:"OK", children:[] });
+}
+function duplicateNode(node,parent){
+  const loc = findParentAndIndex(node.id);
+  if(!loc) return;
+  const clone = structuredClone(node); clone.id = uid();
+  function regenIds(nd){ nd.id = uid(); (nd.children||[]).forEach(regenIds); }
+  regenIds(clone);
+  loc.nodes.splice(loc.index+1,0,clone);
+}
+function deleteNode(node,parent){
+  const loc = findParentAndIndex(node.id);
+  if(!loc) return;
+  loc.nodes.splice(loc.index,1);
+}
+function moveUp(node,parent){
+  const loc = findParentAndIndex(node.id);
+  if(!loc || loc.index===0) return;
+  [loc.nodes[loc.index-1], loc.nodes[loc.index]] = [loc.nodes[loc.index], loc.nodes[loc.index-1]];
+}
+function moveDown(node,parent){
+  const loc = findParentAndIndex(node.id);
+  if(!loc || loc.index>=loc.nodes.length-1) return;
+  [loc.nodes[loc.index+1], loc.nodes[loc.index]] = [loc.nodes[loc.index], loc.nodes[loc.index+1]];
+}
+function indentNode(node,parent){
+  const loc = findParentAndIndex(node.id);
+  if(!loc || loc.index===0) return;
+  // devenir enfant de son précédent
+  const prev = loc.nodes[loc.index-1];
+  prev.children = prev.children||[];
+  // retirer du niveau courant
+  loc.nodes.splice(loc.index,1);
+  // ajouter comme enfant
+  prev.children.push(node);
+}
+function outdentNode(node,parent){
+  const loc = findParentAndIndex(node.id);
+  if(!loc || !loc.parent) return; // déjà à la racine
+  // remonter d'un niveau: insérer après le parent
+  const parentLoc = findParentAndIndex(loc.parent.id);
+  if(!parentLoc) return;
+  // retirer de l'actuel
+  loc.nodes.splice(loc.index,1);
+  // insérer après parent
+  const idxAfterParent = parentLoc.index+1;
+  parentLoc.nodes.splice(idxAfterParent,0,node);
+}
+
+/* =========================
+   Rapport texte
+   ========================= */
+const out = document.getElementById("reportOut");
+const partsEl = document.getElementById("parts");
+partsEl.value = state.parts||"";
+partsEl.addEventListener("input", ()=>{ state.parts = partsEl.value; saveState(); renderText(); });
+
+function buildLines(nodes, depth=0, lines=[]){
+  const indent = "  ".repeat(depth);
+  nodes.forEach(nd=>{
+    const mark = nd.checked ? "[x]" : "[ ]";
+    const status = nd.level ? ` (${nd.level})` : "";
+    lines.push(`${indent}- ${mark} ${nd.label}${status}`);
+    if(nd.children?.length) buildLines(nd.children, depth+1, lines);
+  });
+  return lines;
+}
+function renderText(){
+  const lines = [];
+  lines.push("RAPPORT D’ENTRETIEN – Checklist");
+  lines.push("");
+  lines.push("CHECKLIST:");
+  buildLines(tree,0,lines);
+  lines.push("");
+  lines.push("PIÈCES REMPLACÉES:");
+  const ps = (state.parts||"").split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  if(ps.length){ ps.forEach(p=> lines.push(` - ${p}`)); } else { lines.push("Aucune"); }
+  lines.push("");
+  lines.push(`Généré le ${new Date().toLocaleString('fr-FR')}`);
+  out.value = lines.join("\n");
+  document.getElementById("counter").textContent = `${out.value.length} caractères`;
+}
+
+/* =========================
+   Modèles: UI & actions
+   ========================= */
+const sel = document.getElementById("templateSel");
+const tplName = document.getElementById("tplName");
+const tplType = document.getElementById("tplType");
+
+function refreshTemplateSelect(){
+  sel.innerHTML = "";
+  // grouper par type
+ 
