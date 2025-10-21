@@ -1,0 +1,9 @@
+{
+  "name": "Checklist FSM",
+  "short_name": "FSM",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#333333",
+  "icons": []
+}
