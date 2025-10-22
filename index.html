@@ -1,31 +1,58 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checklist Machine</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="manifest" href="manifest.json">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Checklist Machine — WebApp</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <img src="assets/logo.png" alt="Logo" id="logo">
-        <h1>Checklist Machine</h1>
-    </header>
-    <main>
-        <section id="technician-info" class="hidden">
-            <label for="technician-name">Nom du technicien :</label>
-            <input type="text" id="technician-name">
-            <button onclick="saveTechnicianInfo()">Valider</button>
-        </section>
-        <section id="checklist-section" class="hidden">
-            <label for="machine-select">Sélectionnez une machine :</label>
-            <select id="machine-select" onchange="loadChecklist()"></select>
-            <div id="checklist-container"></div>
-        </section>
-    </main>
-    <script src="js/storage.js"></script>
-    <script src="js/sync.js"></script>
-    <script src="js/app.js"></script>
+  <header>
+    <h1>Checklist Machine</h1>
+    <div id="meta">
+      <span id="uuid" title="Identifiant du terminal"></span>
+      <span id="technician" title="Technicien"></span>
+      <button id="resetProfile" title="Réinitialiser UUID / technicien">Réinit</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="config">
+      <label for="machineType">Type de machine :</label>
+      <select id="machineType">
+        <!-- Exemple; sera peuplé par la liste par défaut / checklists -->
+      </select>
+      <button id="newReport">Nouvel article</button>
+      <button id="downloadChecklists">Télécharger checklists</button>
+    </section>
+
+    <section id="checklistArea">
+      <h2 id="reportTitle">Aucun rapport</h2>
+      <div id="checklist"></div>
+      <div id="reportActions">
+        <button id="saveReport">Sauvegarder manuellement</button>
+        <button id="clearReport">Effacer</button>
+        <div id="saveStatus"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <small>Fonctionne hors-ligne (cache) — synchronisation automatique dès connexion</small>
+  </footer>
+
+  <template id="itemTemplate">
+    <div class="item">
+      <label>
+        <input type="checkbox" data-subindex>
+        <span class="icon">🔧</span>
+        <span class="label"></span>
+      </label>
+      <div class="subitems"></div>
+    </div>
+  </template>
+
+  <script src="app.js"></script>
 </body>
 </html>
