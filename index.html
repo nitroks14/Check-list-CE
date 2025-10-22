@@ -3,19 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checklist FSM</title>
+    <title>Checklist Machine</title>
+    <link rel="stylesheet" href="css/style.css">
     <link rel="manifest" href="manifest.json">
-    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <h1>Checklist FSM</h1>
+        <img src="assets/logo.png" alt="Logo" id="logo">
+        <h1>Checklist Machine</h1>
     </header>
     <main>
-        <section id="checklist"></section>
-        <section id="report"></section>
+        <section id="technician-info" class="hidden">
+            <label for="technician-name">Nom du technicien :</label>
+            <input type="text" id="technician-name">
+            <button onclick="saveTechnicianInfo()">Valider</button>
+        </section>
+        <section id="checklist-section" class="hidden">
+            <label for="machine-select">Sélectionnez une machine :</label>
+            <select id="machine-select" onchange="loadChecklist()"></select>
+            <div id="checklist-container"></div>
+        </section>
     </main>
-    <script src="script.js"></script>
-    <script src="blockly_editor.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/sync.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>

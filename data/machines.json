@@ -1,0 +1,20 @@
+{
+    "machines": [
+        {
+            "id": "C100",
+            "name": "C100",
+            "checklist": [
+                {"id": "c100-1", "label": "Vérifier le niveau d'huile", "icon": "oil.png"},
+                {"id": "c100-2", "label": "Inspecter les freins", "icon": "brake.png"}
+            ]
+        },
+        {
+            "id": "T700",
+            "name": "T700",
+            "checklist": [
+                {"id": "t700-1", "label": "Contrôler les pneus", "icon": "tire.png"},
+                {"id": "t700-2", "label": "Tester les feux", "icon": "light.png"}
+            ]
+        }
+    ]
+}

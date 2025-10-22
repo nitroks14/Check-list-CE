@@ -1,19 +1,20 @@
-// Service Worker pour le mode offline
-self.addEventListener("install", event => {
+self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open("fsm-cache").then(cache => {
+        caches.open('checklist-cache').then(cache => {
             return cache.addAll([
-                "index.html",
-                "style.css",
-                "script.js",
-                "blockly_editor.js",
-                "manifest.json"
+                'index.html',
+                'css/style.css',
+                'js/app.js',
+                'js/storage.js',
+                'js/sync.js',
+                'data/machines.json',
+                'assets/logo.png'
             ]);
         })
     );
 });
 
-self.addEventListener("fetch", event => {
+self.addEventListener('fetch', event => {
     event.respondWith(
         caches.match(event.request).then(response => {
             return response || fetch(event.request);

@@ -1,0 +1,30 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+header {
+    background-color: #004080;
+    color: white;
+    padding: 1em;
+    text-align: center;
+}
+#logo {
+    height: 50px;
+}
+main {
+    padding: 1em;
+}
+.hidden {
+    display: none;
+}
+.checklist-item {
+    display: flex;
+    align-items: center;
+    margin: 0.5em 0;
+}
+.checklist-item img {
+    width: 24px;
+    height: 24px;
+    margin-right: 0.5em;
+}
